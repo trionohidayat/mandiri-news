@@ -3,6 +3,8 @@ package com.android.mandirinews
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.ProgressBar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.mandirinews.databinding.ActivityMainBinding
 import retrofit2.Call
@@ -13,6 +15,7 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var progressBar: ProgressBar
 
     private val country = "us"
     var category = ""
@@ -20,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        progressBar = binding.progressBar
 
         binding.rvCategory.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -42,9 +47,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadNewsData() {
+        progressBar.visibility = View.VISIBLE
+
         val call: Call<ResNews> = RetrofitClient.apiService.getTopHeadlines(country, category)
         call.enqueue(object : Callback<ResNews> {
             override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
+                progressBar.visibility = View.GONE
+
                 if (response.isSuccessful) {
                     val newsResponse: ResNews? = response.body()
                     val articles: List<Article>? = newsResponse?.articles
@@ -58,6 +67,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ResNews>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 Log.e("API Call", "Failed: ${t.message}")
             }
         })

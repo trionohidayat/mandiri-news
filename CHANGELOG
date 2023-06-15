@@ -1,3 +1,6 @@
+Version 1.1.1:
+ - Add ProgressBar when Article load
+
 Version 1.1.0:
  - Change region news from id (Indonesia) to us (United Stated)
  - Change view list articles
