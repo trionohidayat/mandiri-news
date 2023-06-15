@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.mandirinews.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
@@ -16,6 +18,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var progressBar: ProgressBar
+    private lateinit var rvCategory: RecyclerView
+    private lateinit var rvArticle: RecyclerView
 
     private val country = "us"
     var category = ""
@@ -25,13 +29,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         progressBar = binding.progressBar
+        rvCategory = binding.rvCategory
+        rvArticle = binding.rvArticle
 
-        binding.rvCategory.layoutManager =
+        rvCategory.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         val categoryList =
             listOf("Business", "Entertainment", "Health", "Science", "Sports", "Technology")
         val adapter = CategoryAdapter(categoryList)
-        binding.rvCategory.adapter = adapter
+        rvCategory.adapter = adapter
 
         adapter.setOnItemClickListener(object : CategoryAdapter.OnItemClickListener {
             override fun onItemClick(category: String) {
@@ -39,6 +45,8 @@ class MainActivity : AppCompatActivity() {
                 loadNewsData()
             }
         })
+
+        rvArticle.addItemDecoration(DividerItemDecoration(this, LinearLayoutManager.VERTICAL))
     }
 
     override fun onStart() {
@@ -59,8 +67,8 @@ class MainActivity : AppCompatActivity() {
                     val articles: List<Article>? = newsResponse?.articles
 
                     val adapter = articles?.let { ArticleAdapter(it) }
-                    binding.rvArticle.layoutManager = LinearLayoutManager(this@MainActivity)
-                    binding.rvArticle.adapter = adapter
+                    rvArticle.layoutManager = LinearLayoutManager(this@MainActivity)
+                    rvArticle.adapter = adapter
                 } else {
                     Log.e("API Response", "Error: ${response.code()}")
                 }
