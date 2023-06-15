@@ -1,5 +1,6 @@
 package com.android.mandirinews
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,7 +34,9 @@ class ArticleAdapter(private val articles: List<Article>) :
             authorText.text = article.author
 
             itemView.setOnClickListener {
-                // Aksi yang ingin dilakukan saat item diklik
+                val intent = Intent(itemView.context, WebViewActivity::class.java)
+                intent.putExtra("url", article.url)
+                itemView.context.startActivity(intent)
             }
         }
     }
