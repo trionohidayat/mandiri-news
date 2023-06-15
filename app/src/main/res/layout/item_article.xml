@@ -1,36 +1,47 @@
-<?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!-- item_article.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="10dp"
-    app:cardElevation="2dp"
-    app:cardUseCompatPadding="true">
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <com.google.android.material.circularreveal.CircularRevealLinearLayout
+    <TextView
+        android:id="@+id/textTitle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp" />
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:hint="Title"
-            android:maxLines="2"
-            android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+    <TextView
+        android:id="@+id/textAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginBottom="4dp" />
 
-        <TextView
-            android:id="@+id/textAuthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginTop="8dp"
-            android:hint="Author"
-            android:textAppearance="@style/TextAppearance.Material3.BodyLarge" />
-    </com.google.android.material.circularreveal.CircularRevealLinearLayout>
+    <ImageView
+        android:id="@+id/imageArticle"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="4dp" />
 
-</com.google.android.material.card.MaterialCardView>
+    <TextView
+        android:id="@+id/textDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/textDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@android:color/darker_gray" />
+
+</LinearLayout>

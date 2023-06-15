@@ -12,7 +12,7 @@ android {
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "1.0.2"
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,4 +49,7 @@ dependencies {
     // Dependensi Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    //Glide Library
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
 }
