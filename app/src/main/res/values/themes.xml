@@ -31,4 +31,13 @@
     </style>
 
     <style name="Theme.MandiriNews" parent="Base.Theme.MandiriNews" />
+
+    <style name="Theme.MandiriNews.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.MandiriNews.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.MandiriNews.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

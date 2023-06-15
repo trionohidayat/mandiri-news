@@ -22,32 +22,21 @@
             app:title="@string/app_name"
             app:titleTextColor="@color/white" />
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_light_primary"
+            app:tabGravity="fill"
+            app:tabMode="scrollable"
+            app:tabIndicatorColor="@color/white"
+            app:tabTextColor="@color/white" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategory"
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/appBar"
-        android:orientation="horizontal"
-        tools:itemCount="1"
-        tools:listitem="@layout/item_category" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvArticle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rvCategory"
-        android:orientation="horizontal"
-        tools:listitem="@layout/item_article" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/rvCategory"
-        android:visibility="gone"
-        android:layout_alignBottom="@id/rvArticle"
-        android:layout_centerHorizontal="true" />
-
+        android:layout_height="match_parent"
+        android:layout_below="@id/appBar" />
 </RelativeLayout>

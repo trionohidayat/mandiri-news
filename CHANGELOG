@@ -1,3 +1,10 @@
+Version 1.2.0: BIG UPDATE
+ - Category by Tab
+ - Using ViewPager2
+ - Add ContentFragment
+ - Remove previous component
+ - Clean code
+
 Version 1.1.3:
  - Change view list articles
  - Remove author in list article
