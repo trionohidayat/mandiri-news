@@ -7,17 +7,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.mandirinews.databinding.FragmentContentBinding
+import com.google.gson.Gson
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
 
+    private var _binding: FragmentContentBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var progressBar: ProgressBar
+    private lateinit var textMessage: TextView
     private lateinit var rvArticle: RecyclerView
 
     private val country = "us"
@@ -30,17 +37,28 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private var adapter: ArticleAdapter? = null
     private val articles: MutableList<Article> = mutableListOf()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_content, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentContentBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        progressBar = view.findViewById(R.id.progressBar)
-        rvArticle = view.findViewById(R.id.rvArticle)
+        progressBar = binding.progressBar
+        textMessage = binding.textMessage
+        rvArticle = binding.rvArticle
 
-        rvArticle.addItemDecoration(DividerItemDecoration(requireActivity(), LinearLayoutManager.VERTICAL))
+        rvArticle.addItemDecoration(
+            DividerItemDecoration(
+                requireActivity(),
+                LinearLayoutManager.VERTICAL
+            )
+        )
 
         arguments?.getString("category")?.let { category ->
             this.category = category
@@ -82,7 +100,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private fun loadNewsData() {
         progressBar.visibility = View.VISIBLE
 
-        val call: Call<ResNews> = RetrofitClient.apiService.getTopHeadlines(country, category, currentPage)
+        val call: Call<ResNews> =
+            RetrofitClient.apiService.getTopHeadlines(country, category, currentPage)
         call.enqueue(object : Callback<ResNews> {
             override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
                 progressBar.visibility = View.GONE
@@ -90,6 +109,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
                 if (response.isSuccessful) {
                     val newsResponse: ResNews? = response.body()
                     val newArticles: List<Article>? = newsResponse?.articles
+
+                    textMessage.text = newsResponse?.message
 
                     newArticles?.let {
                         if (it.isNotEmpty()) {
@@ -100,7 +121,14 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
                         }
                     }
                 } else {
-                    Log.e("API Response", "Error: ${response.code()}")
+                    val errorResponse: ResError? =
+                        Gson().fromJson(response.errorBody()?.charStream(), ResError::class.java)
+                    if (errorResponse != null) {
+                        textMessage.visibility = View.VISIBLE
+                        textMessage.text = errorResponse.message
+                    } else {
+                        Log.e("API Response", "Error: ${response.code()}")
+                    }
                 }
 
                 isLoading = false
