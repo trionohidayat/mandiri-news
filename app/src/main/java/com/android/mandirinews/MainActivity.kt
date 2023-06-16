@@ -41,5 +41,6 @@ class MainActivity : AppCompatActivity() {
             tab.text = categoryList[position]
         }.attach()
 
+        viewPager.isUserInputEnabled = false
     }
 }

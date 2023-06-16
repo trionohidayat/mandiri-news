@@ -11,6 +11,7 @@ interface ApiService {
     @GET("v2/top-headlines")
     fun getTopHeadlines(
         @Query("country") country: String,
-        @Query("category") category: String
+        @Query("category") category: String,
+        @Query("page") page: Int
     ): Call<ResNews>
 }
