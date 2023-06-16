@@ -4,6 +4,12 @@
     android:layout_height="match_parent"
     tools:context=".WebViewActivity">
 
+    <ProgressBar
+        android:id="@+id/progressWeb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"

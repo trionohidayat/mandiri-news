@@ -1,3 +1,7 @@
+Version 1.2.1:
+ - Change icon launcher (Contributor: <a href="https://www.flaticon.com/free-icons/article" title="article icons">Article icons created by smashingstocks - Flaticon</a>)
+ - Add ProgressBar in WebView
+
 Version 1.2.0: BIG UPDATE
  - Category by Tab
  - Using ViewPager2
