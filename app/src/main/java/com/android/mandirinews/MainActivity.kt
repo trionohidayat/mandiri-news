@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -38,7 +39,15 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = fragmentAdapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = categoryList[position]
+            when (position) {
+                0 -> {
+                    tab.icon = ContextCompat.getDrawable(this, R.drawable.round_whatshot_24)
+                }
+
+                else -> {
+                    tab.text = categoryList[position]
+                }
+            }
         }.attach()
 
         viewPager.isUserInputEnabled = false

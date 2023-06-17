@@ -29,6 +29,7 @@
             android:background="@color/md_theme_light_primary"
             app:tabGravity="fill"
             app:tabMode="scrollable"
+            app:tabIconTint="@color/white"
             app:tabIndicatorColor="@color/white"
             app:tabTextColor="@color/white" />
 

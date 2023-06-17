@@ -15,7 +15,13 @@ class FragmentAdapter(
     override fun createFragment(position: Int): Fragment {
         val fragment = ContentFragment()
         val bundle = Bundle()
-        bundle.putString("category", data[position])
+
+        if (position == 0) {
+            bundle.putString("category", "")
+        } else {
+            bundle.putString("category", data[position])
+        }
+
         fragment.arguments = bundle
         return fragment
     }
