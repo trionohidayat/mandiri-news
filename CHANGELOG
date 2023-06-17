@@ -1,3 +1,10 @@
+Version 1.2.4:
+ - Add permission to access network state
+ - Add network utility class
+ - Add error view if application don't connect internet
+ - Add library refresh layout version 1.1.0
+ - Add feature swipe to refresh article in every category
+
 Version 1.2.3:
  - Add response error
  - Showing message error in content

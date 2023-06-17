@@ -6,12 +6,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.mandirinews.databinding.FragmentContentBinding
 import com.google.gson.Gson
 import retrofit2.Call
@@ -26,6 +30,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private lateinit var progressBar: ProgressBar
     private lateinit var textMessage: TextView
     private lateinit var rvArticle: RecyclerView
+    private lateinit var buttonRetry: Button
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private val country = "us"
     private var category = ""
@@ -52,6 +58,19 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         progressBar = binding.progressBar
         textMessage = binding.textMessage
         rvArticle = binding.rvArticle
+        buttonRetry = binding.includeError.buttonRetry
+        swipeRefreshLayout = binding.swipeRefreshLayout
+
+        swipeRefreshLayout.setOnRefreshListener {
+            currentPage = 1
+            articles.clear()
+            adapter?.notifyDataSetChanged()
+            loadNewsData()
+        }
+
+        buttonRetry.setOnClickListener {
+            loadNewsData()
+        }
 
         rvArticle.addItemDecoration(
             DividerItemDecoration(
@@ -100,47 +119,58 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private fun loadNewsData() {
         progressBar.visibility = View.VISIBLE
 
-        val call: Call<ResNews> =
-            RetrofitClient.apiService.getTopHeadlines(country, category, currentPage)
-        call.enqueue(object : Callback<ResNews> {
-            override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
-                progressBar.visibility = View.GONE
+        val networkUtils = NetworkUtils(requireContext())
 
-                if (response.isSuccessful) {
-                    val newsResponse: ResNews? = response.body()
-                    val newArticles: List<Article>? = newsResponse?.articles
+        if (networkUtils.isInternetConnected()) {
+            val call: Call<ResNews> =
+                RetrofitClient.apiService.getTopHeadlines(country, category, currentPage)
+            call.enqueue(object : Callback<ResNews> {
+                override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
+                    progressBar.visibility = View.GONE
+                    swipeRefreshLayout.isRefreshing = false
+                    if (response.isSuccessful) {
+                        val newsResponse: ResNews? = response.body()
+                        val newArticles: List<Article>? = newsResponse?.articles
 
-                    textMessage.text = newsResponse?.message
+                        textMessage.text = newsResponse?.message
 
-                    newArticles?.let {
-                        if (it.isNotEmpty()) {
-                            articles.addAll(it)
-                            adapter?.notifyDataSetChanged()
+                        newArticles?.let {
+                            if (it.isNotEmpty()) {
+                                articles.addAll(it)
+                                adapter?.notifyDataSetChanged()
+                            } else {
+                                isLastPage = true
+                            }
+                        }
+                    } else {
+                        val errorResponse: ResError? =
+                            Gson().fromJson(
+                                response.errorBody()?.charStream(),
+                                ResError::class.java
+                            )
+                        if (errorResponse != null) {
+                            textMessage.visibility = View.VISIBLE
+                            textMessage.text = errorResponse.message
                         } else {
-                            isLastPage = true
+                            Log.e("API Response", "Error: ${response.code()}")
                         }
                     }
-                } else {
-                    val errorResponse: ResError? =
-                        Gson().fromJson(response.errorBody()?.charStream(), ResError::class.java)
-                    if (errorResponse != null) {
-                        textMessage.visibility = View.VISIBLE
-                        textMessage.text = errorResponse.message
-                    } else {
-                        Log.e("API Response", "Error: ${response.code()}")
-                    }
+
+                    isLoading = false
                 }
 
-                isLoading = false
-            }
-
-            override fun onFailure(call: Call<ResNews>, t: Throwable) {
-                progressBar.visibility = View.GONE
-                Log.e("API Call", "Failed: ${t.message}")
-
-                isLoading = false
-            }
-        })
+                override fun onFailure(call: Call<ResNews>, t: Throwable) {
+                    progressBar.visibility = View.GONE
+                    Log.e("API Call", "Failed: ${t.message}")
+                    swipeRefreshLayout.isRefreshing = false
+                    isLoading = false
+                }
+            })
+            networkUtils.hideErrorLayout(binding)
+        } else {
+            networkUtils.showErrorLayout(binding)
+            progressBar.visibility = View.GONE
+        }
     }
 
     override fun onLoadMore() {
