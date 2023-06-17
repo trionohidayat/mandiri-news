@@ -1,7 +1,7 @@
 Version 1.2.5:
  - Add tab latest article
  - Showing article with no category in latest article
- 
+
 Version 1.2.4:
  - Add permission to access network state
  - Add network utility class
