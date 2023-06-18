@@ -6,6 +6,8 @@ import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     private lateinit var tabLayout: TabLayout
     private lateinit var searchView: SearchView
+    private lateinit var progressBar: ProgressBar
     private lateinit var recyclerSearch: RecyclerView
     private lateinit var viewPager: ViewPager2
 
@@ -51,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         toolbar = binding.toolbar
         tabLayout = binding.tabLayout
         searchView = binding.searchView
+        progressBar = binding.progressBar
         recyclerSearch = binding.recyclerSearch
         viewPager = binding.viewPager
 
@@ -138,10 +142,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun performSearch(query: String) {
+        progressBar.visibility = View.VISIBLE
+        recyclerSearch.visibility = View.INVISIBLE
+
         val call: Call<ResNews> =
             RetrofitClient.apiService.getEverything(query)
         call.enqueue(object : Callback<ResNews> {
             override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
+                progressBar.visibility = View.GONE
+                recyclerSearch.visibility = View.VISIBLE
                 if (response.isSuccessful) {
                     val newsResponse: ResNews? = response.body()
                     val newArticles: List<Article>? = newsResponse?.articles
@@ -157,6 +166,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<ResNews>, t: Throwable) {
+                progressBar.visibility = View.GONE
                 Log.e("API Call", "Failed: ${t.message}")
             }
         })
