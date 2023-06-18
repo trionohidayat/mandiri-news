@@ -72,7 +72,7 @@ class ArticleAdapter(
 
             Glide.with(itemView)
                 .load(article.urlToImage)
-                .placeholder(R.drawable.news)
+                .placeholder(R.drawable.placeholder)
                 .into(imageArticle)
 
             itemView.setOnClickListener {

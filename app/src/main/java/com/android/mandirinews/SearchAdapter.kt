@@ -5,12 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 class SearchAdapter(private val articles: List<Article>) :
     RecyclerView.Adapter<SearchAdapter.ViewHolder>() {
@@ -44,12 +41,13 @@ class SearchAdapter(private val articles: List<Article>) :
             // Example using Glide:
             Glide.with(itemView.context)
                 .load(article.urlToImage)
-                .placeholder(R.drawable.news)
+                .placeholder(R.drawable.placeholder)
                 .into(imageArticle)
 
             itemView.setOnClickListener {
-                // Handle item click event
-                // Add your logic here
+                val intent = Intent(itemView.context, WebViewActivity::class.java)
+                intent.putExtra("url", article.url)
+                itemView.context.startActivity(intent)
             }
         }
     }
