@@ -14,4 +14,10 @@ interface ApiService {
         @Query("category") category: String,
         @Query("page") page: Int
     ): Call<ResNews>
+
+    @Headers("X-Api-Key: 1f76d855542f48cdb1d8db8ce6a88384")
+    @GET("v2/everything")
+    fun getEverything(
+        @Query("q") query: String
+    ): Call<ResNews>
 }

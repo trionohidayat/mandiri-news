@@ -1,3 +1,14 @@
+Version 1.3.0:
+ - Add API Service getEverything
+ - Add Search View & RecyclerView component in activity_main
+ - Add Menu resource folder
+ - Add menu_search in menu resource folder
+ - Add icon search round
+ - Create new adapter for search article (SearchAdapter.kt)
+ - Add Search Feature in Main layout
+ - Remove item category layout
+ - Cleaning code
+
 Version 1.2.5:
  - Add tab latest article
  - Showing article with no category in latest article

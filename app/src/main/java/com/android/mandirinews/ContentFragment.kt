@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -47,7 +45,7 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentContentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -61,6 +59,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         buttonRetry = binding.includeError.buttonRetry
         swipeRefreshLayout = binding.swipeRefreshLayout
 
+        setupRecyclerView()
+
         swipeRefreshLayout.setOnRefreshListener {
             currentPage = 1
             articles.clear()
@@ -72,24 +72,22 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
             loadNewsData()
         }
 
-        rvArticle.addItemDecoration(
-            DividerItemDecoration(
-                requireActivity(),
-                LinearLayoutManager.VERTICAL
-            )
-        )
-
         arguments?.getString("category")?.let { category ->
             this.category = category
         }
-
-        setupRecyclerView()
         loadNewsData()
     }
 
     private fun setupRecyclerView() {
         val layoutManager = LinearLayoutManager(requireContext())
         rvArticle.layoutManager = layoutManager
+
+        rvArticle.addItemDecoration(
+            DividerItemDecoration(
+                requireActivity(),
+                LinearLayoutManager.VERTICAL
+            )
+        )
 
         adapter = ArticleAdapter(articles, this)
         rvArticle.adapter = adapter

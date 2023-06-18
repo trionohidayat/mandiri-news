@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -28,16 +28,30 @@
             android:layout_height="wrap_content"
             android:background="@color/md_theme_light_primary"
             app:tabGravity="fill"
-            app:tabMode="scrollable"
             app:tabIconTint="@color/white"
             app:tabIndicatorColor="@color/white"
+            app:tabMode="scrollable"
             app:tabTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.search.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:hint="@string/app_name"
+        app:layout_anchor="@id/appBar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSearch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.search.SearchView>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/appBar" />
-</RelativeLayout>
+        android:layout_below="@id/appBar"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
