@@ -9,13 +9,18 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.android.mandirinews.databinding.FragmentContentBinding
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -38,7 +43,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private var isLoading = false
     private var isLastPage = false
 
-    private var adapter: ArticleAdapter? = null
+    private lateinit var adapter: ArticleAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
     private val articles: MutableList<Article> = mutableListOf()
 
     override fun onCreateView(
@@ -59,26 +65,6 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         buttonRetry = binding.includeError.buttonRetry
         swipeRefreshLayout = binding.swipeRefreshLayout
 
-        setupRecyclerView()
-
-        swipeRefreshLayout.setOnRefreshListener {
-            currentPage = 1
-            articles.clear()
-            adapter?.notifyDataSetChanged()
-            loadNewsData()
-        }
-
-        buttonRetry.setOnClickListener {
-            loadNewsData()
-        }
-
-        arguments?.getString("category")?.let { category ->
-            this.category = category
-        }
-        loadNewsData()
-    }
-
-    private fun setupRecyclerView() {
         val layoutManager = LinearLayoutManager(requireContext())
         rvArticle.layoutManager = layoutManager
 
@@ -91,6 +77,12 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
 
         adapter = ArticleAdapter(articles, this)
         rvArticle.adapter = adapter
+
+        // Set ItemTouchHelper pada ArticleAdapter
+        itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback())
+        itemTouchHelper.attachToRecyclerView(rvArticle)
+
+        loadNewsData()
 
         rvArticle.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -112,6 +104,21 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
                 }
             }
         })
+
+        swipeRefreshLayout.setOnRefreshListener {
+            currentPage = 1
+            articles.clear()
+            adapter?.notifyDataSetChanged()
+            loadNewsData()
+        }
+
+        buttonRetry.setOnClickListener {
+            loadNewsData()
+        }
+
+        arguments?.getString("category")?.let { category ->
+            this.category = category
+        }
     }
 
     private fun loadNewsData() {
@@ -175,5 +182,75 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         isLoading = true
         currentPage++
         loadNewsData()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    inner class ItemTouchHelperCallback : ItemTouchHelper.Callback() {
+
+        override fun isLongPressDragEnabled(): Boolean {
+            return false
+        }
+
+        override fun isItemViewSwipeEnabled(): Boolean {
+            return true
+        }
+
+        override fun getMovementFlags(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder
+        ): Int {
+            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
+            return makeMovementFlags(dragFlags, swipeFlags)
+        }
+
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            // Tidak perlu implementasi karena tidak menggunakan drag and drop
+            return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+            val article = adapter.articles[position]
+
+            val scope = CoroutineScope(Dispatchers.IO)
+            // Simpan artikel ke dalam Room database
+            scope.launch {
+                // Akses instance Room database
+                val database = AppDatabase.getInstance(requireActivity()).articleDao()
+
+                if (database.getAllArticles().contains(article)) {
+                    launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "The article has been saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } else {
+                    // Panggil metode untuk menyimpan artikel ke dalam database
+                    database.insert(article)
+
+                    launch(Dispatchers.Main) {
+                        Toast.makeText(
+                            requireContext(),
+                            "The article has been successfully saved",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
+
+            // Refresh tampilan RecyclerView
+            adapter.notifyDataSetChanged()
+        }
     }
 }

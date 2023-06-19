@@ -1,0 +1,12 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="article_entries">
+        <item>Web in App</item>
+        <item>Google Chrome</item>
+    </string-array>
+
+    <string-array name="article_values">
+        <item>web</item>
+        <item>google</item>
+    </string-array>
+</resources>

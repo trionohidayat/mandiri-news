@@ -42,6 +42,8 @@
     <style name="Theme.MandiriNews.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="Theme.MandiriNews.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <!-- Set the splash screen background, animated icon, and animation duration. -->
         <item name="windowSplashScreenBackground">@color/md_theme_light_background</item>
 

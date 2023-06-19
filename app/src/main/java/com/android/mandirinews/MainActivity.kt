@@ -1,5 +1,6 @@
 package com.android.mandirinews
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -9,39 +10,34 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.android.mandirinews.databinding.ActivityMainBinding
-import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.search.SearchView
-import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var appBarLayout: AppBarLayout
-    private lateinit var toolbar: Toolbar
-    private lateinit var tabLayout: TabLayout
     private lateinit var searchView: SearchView
     private lateinit var progressBar: ProgressBar
     private lateinit var recyclerSearch: RecyclerView
-    private lateinit var viewPager: ViewPager2
 
     private val hintList = listOf("Mandiri News", "Bitcoin", "Ukraine", "COVID", "Nasa", "Reddit")
     private var hintIndex = 0
     private lateinit var hintChangeHandler: Handler
-
-    private val categoryList =
-        listOf("Business", "Entertainment", "Health", "Science", "Sports", "Technology")
 
     private var adapter: SearchAdapter? = null
     private val articles: MutableList<Article> = mutableListOf()
@@ -52,19 +48,25 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        appBarLayout = binding.appBar
-        toolbar = binding.toolbar
-        tabLayout = binding.tabLayout
-        searchView = binding.searchView
-        progressBar = binding.progressBar
-        recyclerSearch = binding.recyclerSearch
-        viewPager = binding.viewPager
+        setSupportActionBar(binding.appBarMain.toolbar)
 
-        setSupportActionBar(toolbar)
+        val drawerLayout: DrawerLayout = binding.drawerLayout
+        val navView: NavigationView = binding.navView
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_home, R.id.nav_bookmark
+            ), drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+        navView.setupWithNavController(navController)
+
+        searchView = binding.appBarMain.searchView
+        progressBar = binding.appBarMain.progressBar
+        recyclerSearch = binding.appBarMain.recyclerSearch
 
         searchView.editText.setOnEditorActionListener { v, actionId, event ->
             performSearch(searchView.editText.text.toString())
-//            searchView.hide()
             false
         }
 
@@ -72,33 +74,27 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        val fragmentAdapter = FragmentAdapter(categoryList, this)
-        viewPager.adapter = fragmentAdapter
-
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            when (position) {
-                0 -> {
-                    tab.icon = ContextCompat.getDrawable(this, R.drawable.round_whatshot_24)
-                }
-
-                else -> {
-                    tab.text = categoryList[position]
-                }
-            }
-        }.attach()
-
-        viewPager.isUserInputEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_search, menu)
+        menuInflater.inflate(R.menu.menu_main, menu)
         return true
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_content_main)
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
                 searchView.show()
+                true
+            }
+
+            R.id.action_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
 

@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class ArticleAdapter(
-    private val articles: MutableList<Article>,
+    val articles: MutableList<Article>,
     private val loadMoreListener: LoadMoreListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -102,5 +102,48 @@ class ArticleAdapter(
         val date = inputFormat.parse(dateString)
         return date?.let { outputFormat.format(it) }
     }
+
+    /*fun setItemTouchHelper(recyclerView: RecyclerView) {
+        val itemTouchCallback = object : ItemTouchHelper.Callback() {
+            override fun isLongPressDragEnabled(): Boolean {
+                return false
+            }
+
+            override fun isItemViewSwipeEnabled(): Boolean {
+                return true
+            }
+
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder
+            ): Int {
+                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+                val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
+                return makeMovementFlags(dragFlags, swipeFlags)
+            }
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    // Lakukan aksi yang diinginkan saat item di-swipe ke kiri atau ke kanan
+                    // Misalnya, menghapus item dari daftar articles dan memperbarui UI
+//                    articles.removeAt(position)
+//                    notifyItemRemoved(position)
+                    notifyDataSetChanged()
+                }
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }*/
 }
 
