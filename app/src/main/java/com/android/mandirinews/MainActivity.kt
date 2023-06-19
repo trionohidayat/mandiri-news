@@ -11,6 +11,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     private val articles: MutableList<Article> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

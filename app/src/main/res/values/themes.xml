@@ -40,4 +40,19 @@
     <style name="Theme.MandiriNews.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.MandiriNews.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Theme.MandiriNews.SplashScreen" parent="Theme.SplashScreen">
+        <!-- Set the splash screen background, animated icon, and animation duration. -->
+        <item name="windowSplashScreenBackground">@color/md_theme_light_background</item>
+
+        <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
+             animated drawable. One of these is required. -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen</item>
+        <!-- Required for animated icons -->
+        <item name="windowSplashScreenAnimationDuration">2000</item>
+
+        <!-- Set the theme of the Activity that directly follows your splash screen. -->
+        <!-- Required -->
+        <item name="postSplashScreenTheme">@style/Theme.MandiriNews</item>
+    </style>
 </resources>
