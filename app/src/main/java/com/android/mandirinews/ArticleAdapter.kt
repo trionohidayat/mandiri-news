@@ -1,6 +1,9 @@
 package com.android.mandirinews
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +17,7 @@ import java.util.Locale
 
 class ArticleAdapter(
     val articles: MutableList<Article>,
+    private val preferences: SharedPreferences,
     private val loadMoreListener: LoadMoreListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -76,8 +80,31 @@ class ArticleAdapter(
                 .into(imageArticle)
 
             itemView.setOnClickListener {
-                val intent = Intent(itemView.context, WebViewActivity::class.java)
-                intent.putExtra("url", article.url)
+
+                when (preferences.getString("article_access", "web_view")) {
+                    "web_view" -> openArticleInWebView(article.url)
+                    "google_chrome" -> openArticleInChrome(article.url)
+                }
+            }
+        }
+
+        private fun openArticleInWebView(url: String) {
+            val intent = Intent(itemView.context, WebViewActivity::class.java)
+            intent.putExtra("url", url)
+            itemView.context.startActivity(intent)
+        }
+
+        private fun openArticleInChrome(url: String) {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(url)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.setPackage("com.android.chrome")
+
+            try {
+                itemView.context.startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                // Chrome is not installed, fallback to default browser
+                intent.setPackage(null)
                 itemView.context.startActivity(intent)
             }
         }
@@ -102,48 +129,5 @@ class ArticleAdapter(
         val date = inputFormat.parse(dateString)
         return date?.let { outputFormat.format(it) }
     }
-
-    /*fun setItemTouchHelper(recyclerView: RecyclerView) {
-        val itemTouchCallback = object : ItemTouchHelper.Callback() {
-            override fun isLongPressDragEnabled(): Boolean {
-                return false
-            }
-
-            override fun isItemViewSwipeEnabled(): Boolean {
-                return true
-            }
-
-            override fun getMovementFlags(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-                val swipeFlags = ItemTouchHelper.START or ItemTouchHelper.END
-                return makeMovementFlags(dragFlags, swipeFlags)
-            }
-
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val position = viewHolder.adapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    // Lakukan aksi yang diinginkan saat item di-swipe ke kiri atau ke kanan
-                    // Misalnya, menghapus item dari daftar articles dan memperbarui UI
-//                    articles.removeAt(position)
-//                    notifyItemRemoved(position)
-                    notifyDataSetChanged()
-                }
-            }
-        }
-
-        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
-    }*/
 }
 

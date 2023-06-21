@@ -1,5 +1,6 @@
 package com.android.mandirinews
 
+import android.content.Context
 import android.nfc.tech.MifareUltralight.PAGE_SIZE
 import android.os.Bundle
 import android.util.Log
@@ -75,14 +76,18 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
             )
         )
 
-        adapter = ArticleAdapter(articles, this)
+        adapter = ArticleAdapter(
+            articles,
+            requireActivity().getSharedPreferences(
+                requireActivity().packageName + "_preferences",
+                Context.MODE_PRIVATE
+            ),
+            this
+        )
         rvArticle.adapter = adapter
 
-        // Set ItemTouchHelper pada ArticleAdapter
         itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback())
         itemTouchHelper.attachToRecyclerView(rvArticle)
-
-        loadNewsData()
 
         rvArticle.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -119,6 +124,8 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         arguments?.getString("category")?.let { category ->
             this.category = category
         }
+
+        loadNewsData()
     }
 
     private fun loadNewsData() {

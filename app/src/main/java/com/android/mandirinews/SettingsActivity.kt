@@ -4,19 +4,24 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceFragmentCompat
 import com.android.mandirinews.databinding.SettingsActivityBinding
+import com.google.android.material.appbar.MaterialToolbar
 
 class SettingsActivity : AppCompatActivity() {
 
     private lateinit var binding: SettingsActivityBinding
+    private lateinit var toolbar: MaterialToolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = SettingsActivityBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
-        setSupportActionBar(binding.include.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        toolbar = binding.include.toolbar
+
+        setSupportActionBar(toolbar)
+        toolbar.setNavigationOnClickListener {
+            onBackPressedDispatcher.onBackPressed()
+        }
 
         if (savedInstanceState == null) {
             supportFragmentManager
@@ -26,14 +31,10 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
-    }
-
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.root_preferences, rootKey)
+            setPreferencesFromResource(R.xml.app_preferences, rootKey)
+
         }
     }
 }
