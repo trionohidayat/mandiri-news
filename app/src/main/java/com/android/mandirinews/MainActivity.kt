@@ -1,6 +1,9 @@
 package com.android.mandirinews
 
+import android.Manifest
 import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +13,8 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.findNavController
@@ -17,9 +22,12 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.mandirinews.adapter.SearchAdapter
+import com.android.mandirinews.api.ApiClient
 import com.android.mandirinews.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.search.SearchView
@@ -34,6 +42,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchView: SearchView
     private lateinit var progressBar: ProgressBar
     private lateinit var recyclerSearch: RecyclerView
+    private lateinit var preferences: SharedPreferences
+
 
     private val hintList = listOf("Mandiri News", "Bitcoin", "Ukraine", "COVID", "Nasa", "Reddit")
     private var hintIndex = 0
@@ -42,11 +52,22 @@ class MainActivity : AppCompatActivity() {
     private var adapter: SearchAdapter? = null
     private val articles: MutableList<Article> = mutableListOf()
 
+    companion object {
+        private const val STORAGE_PERMISSION_REQUEST_CODE = 123
+    }
+
+    private var isStoragePermissionGranted: Boolean
+        get() = preferences.getBoolean("permission_storage", false)
+        set(value) = preferences.edit().putBoolean("permission_storage", value).apply()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        PreferenceManager.setDefaultValues(this, R.xml.app_preferences, false)
+        preferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
@@ -74,6 +95,34 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
+        checkStoragePermission()
+
+    }
+
+    private fun checkStoragePermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                STORAGE_PERMISSION_REQUEST_CODE
+            )
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == STORAGE_PERMISSION_REQUEST_CODE) {
+            isStoragePermissionGranted =
+                grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -94,7 +143,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.action_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
                 true
             }
 
@@ -144,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         recyclerSearch.visibility = View.INVISIBLE
 
         val call: Call<ResNews> =
-            RetrofitClient.apiService.getEverything(query)
+            ApiClient.apiService.getEverything(query)
         call.enqueue(object : Callback<ResNews> {
             override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
                 progressBar.visibility = View.GONE

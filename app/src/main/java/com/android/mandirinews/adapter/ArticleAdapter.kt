@@ -1,4 +1,4 @@
-package com.android.mandirinews
+package com.android.mandirinews.adapter
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -11,6 +11,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.android.mandirinews.Article
+import com.android.mandirinews.R
+import com.android.mandirinews.WebViewActivity
 import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -21,13 +24,13 @@ class ArticleAdapter(
     private val loadMoreListener: LoadMoreListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val VIEW_TYPE_ITEM = 0
-    private val VIEW_TYPE_LOADING = 1
+    private val viewTypeItem = 0
+    private val viewTypeLoading = 1
 
     private var isLoading = false
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return if (viewType == VIEW_TYPE_ITEM) {
+        return if (viewType == viewTypeItem) {
             val itemView = LayoutInflater.from(parent.context)
                 .inflate(R.layout.item_article, parent, false)
             ItemViewHolder(itemView)
@@ -54,14 +57,13 @@ class ArticleAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if (position < articles.size) {
-            VIEW_TYPE_ITEM
+            viewTypeItem
         } else {
-            VIEW_TYPE_LOADING
+            viewTypeLoading
         }
     }
 
     inner class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // ViewHolder implementation for item views
         private val titleText: TextView = itemView.findViewById(R.id.textTitle)
         private val descriptionText: TextView = itemView.findViewById(R.id.textDescription)
         private val dateText: TextView = itemView.findViewById(R.id.textDate)
@@ -103,7 +105,6 @@ class ArticleAdapter(
             try {
                 itemView.context.startActivity(intent)
             } catch (e: ActivityNotFoundException) {
-                // Chrome is not installed, fallback to default browser
                 intent.setPackage(null)
                 itemView.context.startActivity(intent)
             }

@@ -1,6 +1,8 @@
 package com.android.mandirinews
 
-import android.content.Context
+import android.Manifest
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.nfc.tech.MifareUltralight.PAGE_SIZE
 import android.os.Bundle
 import android.util.Log
@@ -11,12 +13,17 @@ import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.android.mandirinews.adapter.ArticleAdapter
+import com.android.mandirinews.api.ApiClient
+import com.android.mandirinews.database.ArticleDatabase
 import com.android.mandirinews.databinding.FragmentContentBinding
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -31,13 +38,15 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
     private var _binding: FragmentContentBinding? = null
     private val binding get() = _binding!!
 
+    private lateinit var preferences: SharedPreferences
+
     private lateinit var progressBar: ProgressBar
     private lateinit var textMessage: TextView
     private lateinit var rvArticle: RecyclerView
     private lateinit var buttonRetry: Button
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-    private val country = "us"
+    private lateinit var country: String
     private var category = ""
     private var currentPage = 1
 
@@ -66,6 +75,9 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
         buttonRetry = binding.includeError.buttonRetry
         swipeRefreshLayout = binding.swipeRefreshLayout
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireActivity())
+        country = preferences.getString("article_content", "us").toString()
+
         val layoutManager = LinearLayoutManager(requireContext())
         rvArticle.layoutManager = layoutManager
 
@@ -76,14 +88,7 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
             )
         )
 
-        adapter = ArticleAdapter(
-            articles,
-            requireActivity().getSharedPreferences(
-                requireActivity().packageName + "_preferences",
-                Context.MODE_PRIVATE
-            ),
-            this
-        )
+        adapter = ArticleAdapter(articles, preferences, this)
         rvArticle.adapter = adapter
 
         itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback())
@@ -135,7 +140,7 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
 
         if (networkUtils.isInternetConnected()) {
             val call: Call<ResNews> =
-                RetrofitClient.apiService.getTopHeadlines(country, category, currentPage)
+                ApiClient.apiService.getTopHeadlines(country, category, currentPage)
             call.enqueue(object : Callback<ResNews> {
                 override fun onResponse(call: Call<ResNews>, response: Response<ResNews>) {
                     progressBar.visibility = View.GONE
@@ -220,7 +225,6 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            // Tidak perlu implementasi karena tidak menggunakan drag and drop
             return false
         }
 
@@ -228,11 +232,19 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
             val position = viewHolder.adapterPosition
             val article = adapter.articles[position]
 
+            if (!isStoragePermissionGranted()) {
+                Toast.makeText(
+                    requireContext(),
+                    "Permission required to save articles.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                adapter.notifyDataSetChanged()
+                return
+            }
+
             val scope = CoroutineScope(Dispatchers.IO)
-            // Simpan artikel ke dalam Room database
             scope.launch {
-                // Akses instance Room database
-                val database = AppDatabase.getInstance(requireActivity()).articleDao()
+                val database = ArticleDatabase.getInstance(requireActivity()).articleDao()
 
                 if (database.getAllArticles().contains(article)) {
                     launch(Dispatchers.Main) {
@@ -243,7 +255,6 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
                         ).show()
                     }
                 } else {
-                    // Panggil metode untuk menyimpan artikel ke dalam database
                     database.insert(article)
 
                     launch(Dispatchers.Main) {
@@ -256,8 +267,15 @@ class ContentFragment : Fragment(), ArticleAdapter.LoadMoreListener {
                 }
             }
 
-            // Refresh tampilan RecyclerView
             adapter.notifyDataSetChanged()
         }
     }
+
+    private fun isStoragePermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
 }

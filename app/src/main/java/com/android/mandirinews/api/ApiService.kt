@@ -1,5 +1,6 @@
-package com.android.mandirinews
+package com.android.mandirinews.api
 
+import com.android.mandirinews.ResNews
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

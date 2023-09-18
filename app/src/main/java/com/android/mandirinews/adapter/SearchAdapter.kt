@@ -1,4 +1,4 @@
-package com.android.mandirinews
+package com.android.mandirinews.adapter
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.android.mandirinews.Article
+import com.android.mandirinews.R
+import com.android.mandirinews.WebViewActivity
 import com.bumptech.glide.Glide
 
 class SearchAdapter(private val articles: List<Article>) :
@@ -37,8 +40,6 @@ class SearchAdapter(private val articles: List<Article>) :
             textDescription.text = article.description
             textDate.text = article.publishedAt
 
-            // Load image using your preferred image loading library
-            // Example using Glide:
             Glide.with(itemView.context)
                 .load(article.urlToImage)
                 .placeholder(R.drawable.placeholder)

@@ -9,9 +9,9 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.android.mandirinews.AppDatabase
+import com.android.mandirinews.database.ArticleDatabase
 import com.android.mandirinews.Article
-import com.android.mandirinews.SearchAdapter
+import com.android.mandirinews.adapter.SearchAdapter
 import com.android.mandirinews.databinding.FragmentBookmarkBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -62,20 +62,15 @@ class BookmarkFragment : Fragment() {
     }
 
     private fun loadNewsData() {
-// Bersihkan daftar artikel sebelum mengisi ulang
         articles.clear()
 
-        // Akses instance Room database
-        val database = AppDatabase.getInstance(requireContext())
+        val database = ArticleDatabase.getInstance(requireContext())
 
-        // Akses DAO untuk mendapatkan artikel yang tersimpan
         GlobalScope.launch(Dispatchers.IO) {
             val bookmarkedArticles = database.articleDao().getAllArticles()
 
-            // Masukkan artikel yang tersimpan ke dalam daftar articles
             articles.addAll(bookmarkedArticles)
 
-            // Update tampilan RecyclerView di thread utama
             launch(Dispatchers.Main) {
                 adapter.notifyDataSetChanged()
                 swipeRefreshLayout.isRefreshing = false

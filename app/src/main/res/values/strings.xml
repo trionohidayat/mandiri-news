@@ -22,7 +22,7 @@
 
     <!-- Preference Titles -->
     <string name="article_header">Article</string>
-
-    <string name="article_access">Article access</string>
+    <string name="article_content">Content</string>
+    <string name="article_access">Access</string>
 
 </resources>

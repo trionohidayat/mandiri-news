@@ -1,4 +1,4 @@
-package com.android.mandirinews
+package com.android.mandirinews.api
 
 class ApiKeyProviderImpl : ApiKeyProvider {
 

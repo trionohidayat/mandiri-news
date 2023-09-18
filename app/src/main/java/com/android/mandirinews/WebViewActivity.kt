@@ -2,12 +2,12 @@ package com.android.mandirinews
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
+import androidx.appcompat.app.AppCompatActivity
 import com.android.mandirinews.databinding.ActivityWebViewBinding
 
 class WebViewActivity : AppCompatActivity() {
@@ -61,7 +61,7 @@ class WebViewActivity : AppCompatActivity() {
         override fun onPageFinished(view: WebView?, url: String?) {
             if (!redirect) {
                 loadingFinished = true
-                progressWeb.visibility = View.GONE // Sembunyikan ProgressBar saat selesai
+                progressWeb.visibility = View.GONE
             } else {
                 redirect = false
             }

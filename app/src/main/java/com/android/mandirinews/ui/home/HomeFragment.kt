@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
-import com.android.mandirinews.FragmentAdapter
 import com.android.mandirinews.R
+import com.android.mandirinews.adapter.FragmentAdapter
 import com.android.mandirinews.databinding.FragmentHomeBinding
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.tabs.TabLayout
