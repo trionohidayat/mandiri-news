@@ -11,19 +11,10 @@ class ApiInterceptor(private val apiKeyProvider: ApiKeyProvider) : Interceptor {
         val apiKey = apiKeyProvider.getApiKey()
 
         val newRequest = originalRequest.newBuilder()
-            .header("Authorization", "Bearer $apiKey")
+            .header("X-Api-Key", apiKey) // Ganti Authorization -> X-Api-Key
+            .header("User-Agent", "Mozilla/5.0 (Android 10; Mobile; rv:90.0) Gecko/90.0 Firefox/90.0")
             .build()
 
-        val response = chain.proceed(newRequest)
-
-        if (!response.isSuccessful) {
-            apiKeyProvider.changeApiKey()
-            val retryRequest = newRequest.newBuilder()
-                .header("Authorization", "Bearer ${apiKeyProvider.getApiKey()}")
-                .build()
-            return chain.proceed(retryRequest)
-        }
-
-        return response
+        return chain.proceed(newRequest)
     }
 }
